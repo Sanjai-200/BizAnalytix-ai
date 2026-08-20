@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizAnalytix AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-page="app">
+  <div class="config-banner" id="config-banner">
+    Firebase is not configured yet. Edit <code>static/firebase-config.js</code> with your project's web app config, then reload this page.
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark"></div>
+        <div class="brand" style="font-size:16px;">BizAnalytix AI</div>
+      </div>
+
+      <button class="btn-secondary" id="new-chat-btn" style="margin-top:16px;width:100%;">+ New chat</button>
+
+      <div class="sidebar-section-title">Chats</div>
+      <div id="chat-list"><div class="sidebar-empty">Loading...</div></div>
+
+      <div class="sidebar-section-title">My datasets</div>
+      <div id="dataset-list"><div class="sidebar-empty">Loading...</div></div>
+
+      <label for="file-input" class="upload-zone">
+        Upload CSV / XLS / XLSX / JSON
+      </label>
+      <input type="file" id="file-input" accept=".csv,.xls,.xlsx,.json" style="display:none;">
+
+      <div class="sidebar-section-title" id="shared-section-title" style="display:none;">Shared with me</div>
+      <div id="shared-dataset-list"></div>
+
+      <div style="flex:1;"></div>
+      <div class="ledger-rule"></div>
+      <button class="theme-toggle" id="theme-toggle">Switch to dark mode</button>
+    </aside>
+
+    <div class="main-col">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="user-email" style="font-size:13px;color:var(--ink-soft);"></span>
+          <span class="role-badge" id="role-chip"></span>
+        </div>
+        <div class="nav-links">
+          <a href="/developer" id="developer-link" style="display:none;">Developer dashboard</a>
+          <a href="/admin" id="admin-link" style="display:none;">Admin dashboard</a>
+          <button class="btn-secondary btn-sm" id="logout-btn">Log out</button>
+        </div>
+      </div>
+
+      <div class="chat-area" id="chat-area">
+        <div class="empty-state">
+          <h3>Ask about your business data</h3>
+          <p id="welcome-message">Upload a CSV, Excel, or JSON file, then ask things like "what's the average salary" or "which region has the highest sales." Every question automatically uses all of your uploaded files unless you click one to narrow it down.</p>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div id="active-dataset-pill"></div>
+        <div class="composer-row">
+          <textarea id="message-input" placeholder="Ask a business or data question..." rows="1"></textarea>
+          <button class="btn-primary" id="send-btn" style="width:auto;margin-top:0;padding:11px 20px;">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share dataset modal -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-box">
+      <h3>Share dataset</h3>
+      <p>Grant a developer or admin account read-only access to this dataset. They will be able to view and ask questions about it, but not delete it.</p>
+      <label for="share-email">Recipient email</label>
+      <input type="email" id="share-email" placeholder="teammate@example.com">
+      <div class="error-msg" id="share-error"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="share-cancel">Cancel</button>
+        <button class="btn-primary" id="share-confirm" style="width:auto;margin-top:0;padding:9px 16px;">Share</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic confirm modal -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-box">
+      <h3 id="confirm-title">Are you sure?</h3>
+      <p id="confirm-body"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="confirm-cancel">Cancel</button>
+        <button class="btn-danger" id="confirm-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

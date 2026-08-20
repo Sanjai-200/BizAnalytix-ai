@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in - BizAnalytix AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="config-banner" id="config-banner">
+    Firebase is not configured yet. Edit <code>static/firebase-config.js</code> with your project's web app config, then reload this page.
+  </div>
+
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-row">
+        <div class="brand-mark"></div>
+        <div class="brand">BizAnalytix AI</div>
+      </div>
+      <p class="tagline">Ask your data, not a spreadsheet.</p>
+
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="current-password">
+
+        <div class="error-msg" id="error-msg"></div>
+        <button type="submit" class="btn-primary" id="login-btn">Log in</button>
+      </form>
+
+      <div class="switch-link">
+        No account yet? <a href="/register">Create one</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
+  <script>
+    if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('YOUR_') === 0) {
+      document.getElementById('config-banner').classList.add('show');
+    }
+
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+    const loginBtn = document.getElementById('login-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        if (typeof fbAuth === 'undefined') throw { code: 'app/not-configured' };
+        await fbAuth.signInWithEmailAndPassword(email, password);
+        window.location.href = '/';
+      } catch (err) {
+        errorMsg.textContent = friendlyAuthError(err);
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log in';
+      }
+    });
+
+    function friendlyAuthError(err) {
+      const code = err.code || '';
+      if (code === 'app/not-configured') return 'Firebase is not configured yet. See the notice above.';
+      if (code.includes('user-not-found') || code.includes('invalid-credential') || code.includes('wrong-password')) {
+        return 'Incorrect email or password.';
+      }
+      if (code.includes('too-many-requests')) return 'Too many attempts. Try again later.';
+      if (code.includes('invalid-email')) return 'Please enter a valid email address.';
+      if (code.includes('api-key-not-valid') || code.includes('invalid-api-key')) return 'Firebase config looks invalid. Check static/firebase-config.js.';
+      return 'Could not log in. Please try again.';
+    }
+
+    if (typeof fbAuth !== 'undefined') {
+      fbAuth.onAuthStateChanged((user) => {
+        if (user) window.location.href = '/';
+      });
+    }
+  </script>
+</body>
+</html>

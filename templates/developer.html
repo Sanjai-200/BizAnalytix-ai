@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer dashboard - BizAnalytix AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-page="developer">
+  <div class="config-banner" id="config-banner">
+    Firebase is not configured yet. Edit <code>static/firebase-config.js</code> with your project's web app config, then reload this page.
+  </div>
+
+  <div class="dash-topbar">
+    <div class="brand-row">
+      <div class="brand-mark"></div>
+      <div class="brand" style="font-size:16px;">BizAnalytix AI</div>
+      <span class="role-badge developer" style="margin-left:4px;">Developer</span>
+    </div>
+    <div class="nav-links">
+      <a href="/">Back to chat</a>
+      <button class="btn-secondary btn-sm" id="logout-btn">Log out</button>
+    </div>
+  </div>
+
+  <div class="dash-wrap">
+    <div id="dev-denied" class="access-denied" style="display:none;">
+      <div class="badge-lock">🔒</div>
+      <h3>Developer access only</h3>
+      <p style="color:var(--ink-soft);">Your account role does not have permission to view this dashboard.</p>
+    </div>
+
+    <div id="dev-content" style="display:none;">
+      <h2>Developer dashboard</h2>
+      <p class="dash-sub">Limited usage analytics, AI/chatbot configuration, and datasets explicitly shared with you.</p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Total datasets (system-wide)</div>
+          <div class="stat-value" id="stat-datasets">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total records stored</div>
+          <div class="stat-value" id="stat-records">-</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h3>AI &amp; chatbot configuration</h3></div>
+        <p class="panel-sub">Controls the model, response style, and topic boundaries used for every user's chat.</p>
+        <div id="config-form-container"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h3>Datasets shared with me</h3></div>
+        <p class="panel-sub">Other users can grant you read-only access to a specific dataset from their chat sidebar.</p>
+        <table id="shared-datasets-table">
+          <thead>
+            <tr><th>Filename</th><th>Owner</th><th>Rows</th><th>Shared</th><th></th></tr>
+          </thead>
+          <tbody id="shared-datasets-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

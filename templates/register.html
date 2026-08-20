@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create account - BizAnalytix AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="config-banner" id="config-banner">
+    Firebase is not configured yet. Edit <code>static/firebase-config.js</code> with your project's web app config, then reload this page.
+  </div>
+
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-row">
+        <div class="brand-mark"></div>
+        <div class="brand">BizAnalytix AI</div>
+      </div>
+      <p class="tagline">Create your account to start analyzing your data.</p>
+
+      <form id="register-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="new-password" minlength="6">
+        <div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">At least 6 characters.</div>
+
+        <div class="error-msg" id="error-msg"></div>
+        <button type="submit" class="btn-primary" id="register-btn">Create account</button>
+      </form>
+
+      <div class="switch-link">
+        Already have an account? <a href="/login">Log in</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
+  <script>
+    if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('YOUR_') === 0) {
+      document.getElementById('config-banner').classList.add('show');
+    }
+
+    const form = document.getElementById('register-form');
+    const errorMsg = document.getElementById('error-msg');
+    const registerBtn = document.getElementById('register-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Creating account...';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        if (typeof fbAuth === 'undefined') throw { code: 'app/not-configured' };
+        const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
+        // Register the profile server-side (assigns default role "user",
+        // or "admin" automatically if this email is in ADMIN_EMAILS).
+        const token = await cred.user.getIdToken();
+        await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        window.location.href = '/';
+      } catch (err) {
+        errorMsg.textContent = friendlyAuthError(err);
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Create account';
+      }
+    });
+
+    function friendlyAuthError(err) {
+      const code = err.code || '';
+      if (code === 'app/not-configured') return 'Firebase is not configured yet. See the notice above.';
+      if (code.includes('email-already-in-use')) return 'An account with this email already exists.';
+      if (code.includes('weak-password')) return 'Password is too weak. Use at least 6 characters.';
+      if (code.includes('invalid-email')) return 'Please enter a valid email address.';
+      if (code.includes('api-key-not-valid') || code.includes('invalid-api-key')) return 'Firebase config looks invalid. Check static/firebase-config.js.';
+      return 'Could not create account. Please try again.';
+    }
+
+    if (typeof fbAuth !== 'undefined') {
+      fbAuth.onAuthStateChanged((user) => {
+        if (user) window.location.href = '/';
+      });
+    }
+  </script>
+</body>
+</html>
